@@ -224,6 +224,7 @@ def slack_events():
     if (
         event.get("type") == "message"
         and event.get("channel_type") == "im"
+        and event.get("user") == BJ_SLACK_ID
         and not event.get("bot_id")
         and not event.get("subtype")
     ):
