@@ -4,12 +4,19 @@ import hashlib
 import time
 import requests
 from flask import Flask, request, jsonify
-from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
 
 SLACK_BOT_TOKEN      = os.environ["SLACK_BOT_TOKEN"]
 SLACK_SIGNING_SECRET = os.environ["SLACK_SIGNING_SECRET"]
+GEMINI_API_KEY       = os.environ["GEMINI_API_KEY"]
+
+TONE_PROMPT = """You are a professional translator. Translate the Korean text below into English.
+
+Tone: Professional yet warm and friendly — like a colleague you've worked with for a while.
+Natural business English, not overly formal. Concise and direct.
+
+Return only the English translation, nothing else."""
 
 
 def verify_slack(req):
@@ -27,7 +34,15 @@ def verify_slack(req):
 
 def translate_ko_to_en(text):
     try:
-        return GoogleTranslator(source="ko", target="en").translate(text)
+        r = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}",
+            json={"contents": [{"parts": [{"text": f"{TONE_PROMPT}\n\n{text}"}]}]},
+            timeout=30,
+        )
+        if r.ok:
+            return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+        print(f"[Gemini 오류] {r.status_code}: {r.text[:200]}")
+        return None
     except Exception as e:
         print(f"[번역 오류] {e}")
         return None
