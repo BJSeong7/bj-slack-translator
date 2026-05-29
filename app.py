@@ -35,7 +35,7 @@ def verify_slack(req):
 def translate_ko_to_en(text):
     try:
         r = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
             json={"contents": [{"parts": [{"text": f"{TONE_PROMPT}\n\n{text}"}]}]},
             timeout=30,
         )
