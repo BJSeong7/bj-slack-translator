@@ -53,8 +53,9 @@ def translate_ko_to_en(text):
         )
         if r.ok:
             return r.json()["content"][0]["text"].strip()
-        print(f"[Claude 오류] {r.status_code}: {r.text[:300]}")
-        return f"❌ 번역 실패 ({r.status_code})"
+        err_msg = r.json().get("error", {}).get("message", r.text[:200]) if r.headers.get("content-type","").startswith("application/json") else r.text[:200]
+        print(f"[Claude 오류] {r.status_code}: {err_msg}")
+        return f"❌ {r.status_code}: {err_msg}"
     except Exception as e:
         print(f"[번역 오류] {e}")
         return None
