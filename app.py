@@ -229,6 +229,9 @@ def slack_events():
         and not event.get("subtype")
     ):
         text = event.get("text", "").strip()
+        # 봇이 보낸 번역 DM이 다시 들어오는 경우 무시
+        if text.startswith("[#eugene-support") or text.startswith("🇺🇸"):
+            return jsonify({"ok": True})
         if text:
             translated = groq(EN_PROMPT, text)
             channel    = event["channel"]
