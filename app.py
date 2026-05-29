@@ -41,8 +41,9 @@ def translate_ko_to_en(text):
         )
         if r.ok:
             return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-        print(f"[Gemini 오류] {r.status_code}: {r.text[:200]}")
-        return None
+        err = f"[Gemini 오류] {r.status_code}: {r.text[:300]}"
+        print(err)
+        return f"❌ 번역 실패 ({r.status_code})"
     except Exception as e:
         print(f"[번역 오류] {e}")
         return None
