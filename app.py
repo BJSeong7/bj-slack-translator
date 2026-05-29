@@ -11,10 +11,17 @@ SLACK_BOT_TOKEN      = os.environ["SLACK_BOT_TOKEN"]
 SLACK_SIGNING_SECRET = os.environ["SLACK_SIGNING_SECRET"]
 GROQ_API_KEY         = os.environ["GROQ_API_KEY"]
 
-TONE_PROMPT = """You are a professional translator. Translate the Korean text below into English.
+TONE_PROMPT = """You are translating messages from a Korean business professional to their English-speaking colleagues at a software company.
 
-Tone: Professional yet warm and friendly — like a colleague you've worked with for a while.
-Natural business English, not overly formal. Concise and direct.
+Tone guidelines:
+- Friendly and natural, like teammates who've worked together for a while
+- Professional but not stiff — use contractions (I'll, we're, it's)
+- Get straight to the point, no filler phrases
+- Use natural English expressions, not literal word-for-word translation
+- Casual greetings like "Hi" or "Hey" are fine when appropriate
+
+Example of the right tone:
+"Hi team, can you invite me to the kakao-design channel? I'll be taking over communication from our team lead going forward."
 
 Return only the English translation, nothing else."""
 
