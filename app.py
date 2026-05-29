@@ -4,12 +4,12 @@ import hashlib
 import time
 import requests
 from flask import Flask, request, jsonify
+from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
 
 SLACK_BOT_TOKEN      = os.environ["SLACK_BOT_TOKEN"]
 SLACK_SIGNING_SECRET = os.environ["SLACK_SIGNING_SECRET"]
-ANTHROPIC_API_KEY    = os.environ["ANTHROPIC_API_KEY"]
 
 
 def verify_slack(req):
@@ -26,29 +26,12 @@ def verify_slack(req):
 
 
 def translate_ko_to_en(text):
-    r = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-        },
-        json={
-            "model": "claude-haiku-4-5-20251001",
-            "max_tokens": 1024,
-            "messages": [{
-                "role": "user",
-                "content": (
-                    "Translate the following Korean text to English. "
-                    "Return only the translation, no explanation:\n\n" + text
-                ),
-            }],
-        },
-        timeout=30,
-    )
-    if r.ok:
-        return r.json()["content"][0]["text"].strip()
-    return None
+    try:
+        return GoogleTranslator(source="ko", target="en").translate(text)
+    except Exception as e:
+        print(f"[번역 오류] {e}")
+        return None
+
 
 
 def send_dm(channel, text):
