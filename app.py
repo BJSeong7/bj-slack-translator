@@ -242,6 +242,46 @@ def slack_events():
     return jsonify({"ok": True})
 
 
+@app.route("/test-poll", methods=["GET"])
+def test_poll():
+    """최근 48시간 메시지를 강제로 스캔해서 BJ에게 DM 발송 (테스트용)"""
+    oldest = str(time.time() - 172800)  # 48시간
+    sent = []
+
+    # 채널 히스토리
+    data = slack_get("conversations.history", {
+        "channel": EUGENE_SUPPORT_CH,
+        "limit": 20,
+        "oldest": oldest,
+    })
+    for msg in data.get("messages", []):
+        ts = msg.get("ts", "")
+        if msg.get("user") == BJ_SLACK_ID:
+            # BJ 스레드 댓글 확인
+            thread_data = slack_get("conversations.replies", {
+                "channel": EUGENE_SUPPORT_CH,
+                "ts": ts,
+                "limit": 20,
+            })
+            msgs = thread_data.get("messages", [])
+            parent = msgs[0] if msgs else {}
+            for reply in msgs[1:]:
+                if reply.get("user") == BJ_SLACK_ID:
+                    continue
+                if reply.get("bot_id") or reply.get("subtype") == "bot_message":
+                    continue
+                parent_text = parent.get("text", "")[:30]
+                format_and_send(reply, thread_title=parent_text)
+                sent.append(reply.get("ts"))
+        else:
+            if msg.get("bot_id") or msg.get("subtype") == "bot_message":
+                continue
+            format_and_send(msg)
+            sent.append(ts)
+
+    return jsonify({"ok": True, "sent": len(sent), "ts_list": sent})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 3000))
     app.run(host="0.0.0.0", port=port)
