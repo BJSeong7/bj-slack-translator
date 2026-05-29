@@ -33,20 +33,24 @@ def verify_slack(req):
 
 
 def translate_ko_to_en(text):
-    try:
-        r = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
-            json={"contents": [{"parts": [{"text": f"{TONE_PROMPT}\n\n{text}"}]}]},
-            timeout=30,
-        )
-        if r.ok:
-            return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-        err = f"[Gemini 오류] {r.status_code}: {r.text[:300]}"
-        print(err)
-        return f"❌ 번역 실패 ({r.status_code})"
-    except Exception as e:
-        print(f"[번역 오류] {e}")
-        return None
+    for attempt in range(3):
+        try:
+            r = requests.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
+                json={"contents": [{"parts": [{"text": f"{TONE_PROMPT}\n\n{text}"}]}]},
+                timeout=30,
+            )
+            if r.ok:
+                return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+            if r.status_code == 429:
+                time.sleep(5 * (attempt + 1))
+                continue
+            print(f"[Gemini 오류] {r.status_code}: {r.text[:300]}")
+            return f"❌ 번역 실패 ({r.status_code})"
+        except Exception as e:
+            print(f"[번역 오류] {e}")
+            return None
+    return "❌ 번역 실패 (한도 초과, 잠시 후 다시 시도해주세요)"
 
 
 
