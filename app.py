@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 SLACK_BOT_TOKEN      = os.environ["SLACK_BOT_TOKEN"]
 SLACK_SIGNING_SECRET = os.environ["SLACK_SIGNING_SECRET"]
-ANTHROPIC_API_KEY    = os.environ["ANTHROPIC_API_KEY"]
+GROQ_API_KEY         = os.environ["GROQ_API_KEY"]
 
 TONE_PROMPT = """You are a professional translator. Translate the Korean text below into English.
 
@@ -35,26 +35,25 @@ def verify_slack(req):
 def translate_ko_to_en(text):
     try:
         r = requests.post(
-            "https://api.anthropic.com/v1/messages",
+            "https://api.groq.com/openai/v1/chat/completions",
             headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json",
             },
             json={
-                "model": "claude-3-5-haiku-20241022",
+                "model": "llama-3.3-70b-versatile",
+                "messages": [
+                    {"role": "system", "content": TONE_PROMPT},
+                    {"role": "user", "content": text},
+                ],
                 "max_tokens": 1024,
-                "messages": [{
-                    "role": "user",
-                    "content": f"{TONE_PROMPT}\n\n{text}",
-                }],
             },
             timeout=30,
         )
         if r.ok:
-            return r.json()["content"][0]["text"].strip()
-        err_msg = r.json().get("error", {}).get("message", r.text[:200]) if r.headers.get("content-type","").startswith("application/json") else r.text[:200]
-        print(f"[Claude 오류] {r.status_code}: {err_msg}")
+            return r.json()["choices"][0]["message"]["content"].strip()
+        err_msg = r.json().get("error", {}).get("message", r.text[:200])
+        print(f"[Groq 오류] {r.status_code}: {err_msg}")
         return f"❌ {r.status_code}: {err_msg}"
     except Exception as e:
         print(f"[번역 오류] {e}")
