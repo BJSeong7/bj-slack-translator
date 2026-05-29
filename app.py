@@ -17,14 +17,16 @@ Write like a well-educated person who speaks English fluently — not like a tra
 
 Rules:
 - No hyphens (— or -) to connect phrases. Use separate sentences instead.
-- No AI-sounding filler: no "I wanted to reach out", "I hope this finds you well", "please don't hesitate"
-- Short, clean sentences. Direct and confident.
-- Use contractions naturally (I'll, we're, it's, that's)
-- Sound human, not formal or stiff
+- No AI filler: no "I wanted to reach out", "We'd appreciate it if", "please don't hesitate", "I hope this finds you well"
+- Use present tense when natural ("is asking" not "has requested", "we're" not "we have been")
+- Short, clean sentences. Say what needs to be said and stop.
+- Keep any emojis from the original message
+- Sound like a person, not a formal letter
 
-Good example:
-"No need to add extra comments. Feel free to use it mainly for prioritization. Leave comments only when necessary.
-The main reason we're using this sheet is that Slack threads get hard to follow when they're too long."
+Good example (Korean → English):
+Korean: "카카오 측에서 6월 5일부터 매주 금요일 릴리즈 예정 항목을 정리해서 공유해달라고 요청하고 있습니다. 부탁드립니다."
+Good: "Kakao is asking us to organize and share the items planned for release every Friday starting June 5. 🙏"
+Bad: "Kakao has requested that we organize and share the release items for every Friday starting June 5th. We'd appreciate it if you could do this."
 
 Return only the English translation, nothing else."""
 
